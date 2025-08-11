@@ -10,13 +10,8 @@ export function detectPlatform(url) {
   return 'Otro';
 }
 
-/**
- * Descarga audio con yt-dlp; usa ffmpeg estático para asegurar compatibilidad en servidores.
- * Guarda como MP3 por ser ampliamente compatible (OpenAI también acepta m4a/mp3).
- */
 export async function downloadAudio(url, outFile) {
   const result = await ytdlp(url, {
-    // Post-procesado a mp3 (requiere ffmpeg, proveemos ruta con ffmpeg-static)
     extractAudio: true,
     audioFormat: 'mp3',
     audioQuality: 0,
@@ -26,16 +21,7 @@ export async function downloadAudio(url, outFile) {
     preferFreeFormats: true,
     ffmpegLocation: ffmpegPath || undefined
   });
-
   let meta = {};
-  try {
-    meta = typeof result === 'string' ? JSON.parse(result) : result;
-  } catch {
-    meta = {};
-  }
-  return {
-    title: meta.title || null,
-    uploader: meta.uploader || meta.channel || null,
-    duration: meta.duration || null
-  };
+  try { meta = typeof result === 'string' ? JSON.parse(result) : result; } catch { meta = {}; }
+  return { title: meta.title || null, uploader: meta.uploader || meta.channel || null, duration: meta.duration || null };
 }
