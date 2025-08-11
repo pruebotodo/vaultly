@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: vaultly-api
+    env: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PORT
+        value: 10000
+  - type: static_site
+    name: vaultly-web
+    rootDir: web
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    # Configura VITE_API_BASE en la UI después de crear los servicios: https://<vaultly-api>.onrender.com
