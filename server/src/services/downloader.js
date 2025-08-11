@@ -1,4 +1,4 @@
-import ytdlp from 'yt-dlp-exec';
+import youtubedl from 'youtube-dl-exec';
 import ffmpegPath from 'ffmpeg-static';
 
 export function detectPlatform(url) {
@@ -10,18 +10,31 @@ export function detectPlatform(url) {
   return 'Otro';
 }
 
+/**
+ * Descarga audio usando yt-dlp vía youtube-dl-exec + ffmpeg estático.
+ * Genera MP3 y devuelve metadatos básicos cuando están disponibles.
+ */
 export async function downloadAudio(url, outFile) {
-  const result = await ytdlp(url, {
+  const result = await youtubedl(url, {
     extractAudio: true,
     audioFormat: 'mp3',
     audioQuality: 0,
     output: outFile,
-    printJson: true,
     noWarnings: true,
     preferFreeFormats: true,
-    ffmpegLocation: ffmpegPath || undefined
+    ffmpegLocation: ffmpegPath || undefined,
+    dumpSingleJson: true
   });
+
   let meta = {};
-  try { meta = typeof result === 'string' ? JSON.parse(result) : result; } catch { meta = {}; }
-  return { title: meta.title || null, uploader: meta.uploader || meta.channel || null, duration: meta.duration || null };
+  try {
+    meta = typeof result === 'string' ? JSON.parse(result) : result;
+  } catch {
+    meta = {};
+  }
+  return {
+    title: meta.title || null,
+    uploader: meta.uploader || meta.channel || null,
+    duration: meta.duration || null
+  };
 }
